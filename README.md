@@ -2,7 +2,7 @@
 
 dada is a list of fri(da) script templates that would be helpful in debugging your application. You install frida via pip and run frida-server on your target. Then you proceed to run the command below:
 ```
-frida -U -l hook-dynamic-java.js -f "YOUR APPLICATION"
+frida -U -l hook-dynamic-java.js -f "APPLICATION NAME"
 ```
 
 ### TODO
@@ -14,8 +14,9 @@ hook-native.js allows you to hook native function loaded by shared library
 The function declaration is as follows:
 ```
 traceNativeMethod(moduleName, nameOrOffset, backtrace = false, regReturn = NULL, ...argsOps)
-traceNativeMethod('libc.so', "open", false, 'int', "string", 'int', 'buffer')
-traceNativeMethod('libc.so', 0xfff, false, 'int', "string", 'int', 'buffer')
+traceNativeMethod('libc.so', "open", false, 'int', "string", 'int')
+traceNativeMethod('libc.so', "write", false, 'int', 'int', 'buffer_next_arg_size')
+traceNativeMethod('libc.so', "read", false, 'int', 'int', 'buffer_next_arg_size')
 ```
 1. moduleName is the name of the shared library e.g. lib.so
 2. nameOrOffset is the name of the (a) function or the (b) offset in hexdecimal from the base address of the shared library
@@ -24,7 +25,7 @@ traceNativeMethod('libc.so', 0xfff, false, 'int', "string", 'int', 'buffer')
 5. argsOps is the format to print your args in register x0 .. to .. xN
 
 
-Format supported includes int, string and buffer
+Format supported includes int, string, buffer and buffer_next_arg_size
 
 ### TODO
 Add dynamic pointer instrumentation. 

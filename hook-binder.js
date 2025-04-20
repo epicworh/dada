@@ -12,7 +12,7 @@ Java.perform(() => {
     const BinderProxy = Java.use('android.os.BinderProxy')
     const Binder = Java.use('android.os.Binder')
     const Thread = Java.use('java.lang.Thread')
-    const TAG = 'natsuki'
+    const TAG = 'test'
     function log(message) {
       Log.i(TAG, message)
     }

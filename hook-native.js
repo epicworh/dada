@@ -4,8 +4,6 @@
 // 2. module name address offset
         // i.e. libc.so 0x400 (0x400 from libc loading point)
 
-traceNativeMethod('libc.so', "open", false, 'int', "string")
-
 function traceNativeMethod(moduleName, nameOrOffset, backtrace = false, regReturn = NULL, ...argsOps) {
 
     // must include module name
@@ -41,16 +39,32 @@ function traceNativeMethod(moduleName, nameOrOffset, backtrace = false, regRetur
                 for (let x = 0; x < actions.length; x++) {
                     switch (actions[x]) {
                         case 'int': {
-                            colors.blue(currentPtr.toInt32())
+                            colors.green(currentPtr.toInt32());
+                            break;
                         }
                         case 'string': {
-                            colors.blue(currentPtr.readUtf8String())
+                            colors.green(currentPtr.readUtf8String());
+                            break;
                         }
                         case 'buffer' : {
-                            colors.blue(hexdump(currentPtr, { length: 256, ansi: true }));
+                            colors.green(hexdump(currentPtr, { length: 256, ansi: true }));
+                            break;
+                        }
+                        case 'buffer_next_arg_size' : {
+                            var size = 24;
+                            try {
+                                size = args[i+1].readUInt();
+                            }
+                            catch(err) {
+                            }
+                            colors.green(hexdump(currentPtr, { length: size, ansi: true }));
+                            colors.green(currentPtr);
+                            i++;
+                            break;
                         }
                         case 'readpointer' : {
                             currentPtr = currentPtr.readPointer();
+                            break;
                         }
                         // TODO, ability to add pointer
                         // case 'addPointer' : {
@@ -62,27 +76,25 @@ function traceNativeMethod(moduleName, nameOrOffset, backtrace = false, regRetur
 
         },
         onLeave(ret) {
-            var actions = regReturn.split("-");
-            var currentPtr = args[i];
-            for (let x = 0; x < actions.length; x++) {
-                switch (actions[x]) {
-                    case 'int': {
-                        colors.blue(currentPtr.toInt32())
-                    }
-                    case 'string': {
-                        colors.blue(currentPtr.readUtf8String())
-                    }
-                    case 'buffer' : {
-                        colors.blue(hexdump(currentPtr, { length: 256, ansi: true }));
-                    }
-                    case 'readpointer' : {
-                        currentPtr = currentPtr.readPointer();
-                    }
-                    // TODO, ability to add pointer
-                    // case 'addPointer' : {
-                    //     currentPtr = currentPtr.add(actions);
-                    // }
+            var action = regReturn;
+            var currentPtr = ret;
+            switch (action) {
+                case 'int': {
+                    colors.blue(currentPtr.toInt32());
+                    break;
                 }
+                case 'string': {
+                    colors.blue(currentPtr.readUtf8String());
+                    break;
+                }
+                case 'buffer' : {
+                    colors.blue(hexdump(currentPtr, { length: 256, ansi: true }));
+                }
+                case 'readpointer' : {
+                    currentPtr = currentPtr.readPointer();
+                    break;
+                }
+
             }
         },
     })
